@@ -153,7 +153,7 @@ export default class GeoloniaMap extends maplibregl.Map {
         resourceType === 'Source' &&
         geoloniaTilesHost
       ) {
-        if (atts.stage === 'dev') {
+        if (atts.stage === 'dev' && transformedUrlObj.hostname === 'tileserver.geolonia.com') {
           transformedUrlObj.hostname = 'tileserver-dev.geolonia.com';
         }
         transformedUrlObj.searchParams.set('sessionId', sessionId);
