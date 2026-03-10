@@ -1,11 +1,11 @@
 import type GeoloniaMap from './lib/geolonia-map';
 
 export type EmbedAttributes = {
-  lat: string;
-  lng: string;
-  zoom: string;
-  bearing: string;
-  pitch: string;
+  lat: string | number;
+  lng: string | number;
+  zoom: string | number;
+  bearing: string | number;
+  pitch: string | number;
   hash: string;
   marker: string;
   markerColor: string;
@@ -27,10 +27,10 @@ export type EmbedAttributes = {
   key: string;
   apiUrl: string;
   loader: string;
-  minZoom: string;
-  maxZoom: string;
+  minZoom: string | number;
+  maxZoom: string | number;
   '3d': string;
-  [otherKey: string]: string;
+  [otherKey: string]: string | number;
 };
 
 export type EmbedPlugin<

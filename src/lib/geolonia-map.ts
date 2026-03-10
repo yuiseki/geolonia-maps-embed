@@ -168,7 +168,7 @@ export default class GeoloniaMap extends maplibregl.Map {
         )
       ) {
         const pathParts = transformedUrlObj.pathname.split('/');
-        pathParts[1] = atts.stage;
+        pathParts[1] = String(atts.stage);
         transformedUrlObj.pathname = pathParts.join('/');
         transformedUrlObj.searchParams.set('key', atts.key);
         return {
