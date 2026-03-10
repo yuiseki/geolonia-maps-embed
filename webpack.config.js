@@ -38,6 +38,7 @@ const sharedConfig = {
 };
 
 const embedConfig = {
+  name: 'embed',
   ...sharedConfig,
   entry: './src/embed.ts',
   output: {
@@ -54,6 +55,8 @@ const embedConfig = {
 };
 
 const embedCoreConfig = {
+  name: 'embed-core',
+  dependencies: ['embed'],
   ...sharedConfig,
   entry: './src/embed-core.ts',
   output: {
