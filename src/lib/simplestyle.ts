@@ -21,6 +21,7 @@ export class SimpleStyle {
   private geojson;
   private map;
   private options;
+  private _eventHandlers: { event: string; layer: string; handler: (...args) => void }[] = [];
 
   constructor(geojson, options?) {
     this.setGeoJSON(geojson);
@@ -270,7 +271,7 @@ export class SimpleStyle {
   }
 
   async setPopup(map, source) {
-    map.on('click', source, async (e) => {
+    const clickHandler = async (e) => {
       const center = turfCenter(e.features[0]).geometry.coordinates as [
         number,
         number,
@@ -284,17 +285,27 @@ export class SimpleStyle {
           .setHTML(sanitizedDescription)
           .addTo(map);
       }
-    });
+    };
 
-    map.on('mouseenter', source, (e) => {
+    const mouseEnterHandler = (e) => {
       if (e.features[0].properties.description) {
         map.getCanvas().style.cursor = 'pointer';
       }
-    });
+    };
 
-    map.on('mouseleave', source, () => {
+    const mouseLeaveHandler = () => {
       map.getCanvas().style.cursor = '';
-    });
+    };
+
+    map.on('click', source, clickHandler);
+    map.on('mouseenter', source, mouseEnterHandler);
+    map.on('mouseleave', source, mouseLeaveHandler);
+
+    this._eventHandlers.push(
+      { event: 'click', layer: source, handler: clickHandler },
+      { event: 'mouseenter', layer: source, handler: mouseEnterHandler },
+      { event: 'mouseleave', layer: source, handler: mouseLeaveHandler },
+    );
   }
 
   /**
@@ -325,9 +336,11 @@ export class SimpleStyle {
       },
     });
 
-    this.map.on('click', `${this.options.id}-clusters`, async (e) => {
+    const clusterLayer = `${this.options.id}-clusters`;
+
+    const clusterClickHandler = async (e) => {
       const features = this.map.queryRenderedFeatures(e.point, {
-        layers: [`${this.options.id}-clusters`],
+        layers: [clusterLayer],
       });
       const clusterId = features[0].properties.cluster_id;
       const zoom = await this.map
@@ -338,19 +351,36 @@ export class SimpleStyle {
         center: features[0].geometry.coordinates,
         zoom: zoom,
       });
-    });
+    };
 
-    this.map.on('mouseenter', `${this.options.id}-clusters`, () => {
+    const clusterEnterHandler = () => {
       this.map.getCanvas().style.cursor = 'pointer';
-    });
+    };
 
-    this.map.on('mouseleave', `${this.options.id}-clusters`, () => {
+    const clusterLeaveHandler = () => {
       this.map.getCanvas().style.cursor = '';
-    });
+    };
+
+    this.map.on('click', clusterLayer, clusterClickHandler);
+    this.map.on('mouseenter', clusterLayer, clusterEnterHandler);
+    this.map.on('mouseleave', clusterLayer, clusterLeaveHandler);
+
+    this._eventHandlers.push(
+      { event: 'click', layer: clusterLayer, handler: clusterClickHandler },
+      { event: 'mouseenter', layer: clusterLayer, handler: clusterEnterHandler },
+      { event: 'mouseleave', layer: clusterLayer, handler: clusterLeaveHandler },
+    );
   }
 
   remove() {
+    if (!this.map) return this;
     const id = this.options.id;
+
+    for (const { event, layer, handler } of this._eventHandlers) {
+      this.map.off(event, layer, handler);
+    }
+    this._eventHandlers = [];
+
     const layerIds = [
       `${id}-polygon-symbol`,
       `${id}-linestring-symbol`,
@@ -371,6 +401,7 @@ export class SimpleStyle {
         this.map.removeSource(sourceId);
       }
     }
+    return this;
   }
 
   setGeoJSON(geojson) {
