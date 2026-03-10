@@ -401,6 +401,9 @@ export class SimpleStyle {
         this.map.removeSource(sourceId);
       }
     }
+
+    this.map.getCanvas().style.cursor = '';
+
     return this;
   }
 
