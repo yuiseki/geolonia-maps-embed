@@ -6,7 +6,8 @@ module.exports = {
   output: {
     ...embedConfig.output,
     path: __dirname,
-    filename: 'embed'
+    filename: 'embed',
+    clean: false,
   },
   mode: 'development',
   devtool: 'inline-source-map',
