@@ -44,7 +44,7 @@ Or
 
 For modern web frameworks, use `@geolonia/embed/core` — a side-effect-free entry point designed for programmatic use.
 
-```
+```shell
 npm install @geolonia/embed
 ```
 
