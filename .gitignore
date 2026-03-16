@@ -73,7 +73,6 @@ typings/
 /docs/embed-core.js
 /docs/v1/embed.js
 /docs/embed-chunks
-/docs/embed-core-chunks
 /docs/v1/embed-chunks
 /docs/e2e/*.d.ts
 /docs/src/
