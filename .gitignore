@@ -70,9 +70,12 @@ typings/
 /docs/embed
 /docs/v1/embed
 /docs/embed.js
+/docs/embed-core.js
 /docs/v1/embed.js
 /docs/embed-chunks
 /docs/v1/embed-chunks
+/docs/e2e/*.d.ts
+/docs/src/
 /docs/types/
 .cache
 .DS_Store
