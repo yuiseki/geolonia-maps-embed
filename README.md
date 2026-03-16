@@ -103,6 +103,7 @@ $ cd embed
 $ npm install
 $ npm start # run dev server
 $ npm test # run tests
+$ npm run e2e # run e2e tests
 $ npm run build # build production bundle
 ```
 
