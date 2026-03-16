@@ -23,7 +23,7 @@ Specify `.geolonia` class for target elements.
 <html>
   <body>
     <div class="geolonia" ...></div>
-    <script src="https://cdn.geolonia.com/v1/embed?geolonia-api-key=YOUR-API-KEY"></script>
+    <script src="https://cdn.geolonia.com/embed/v5/embed?geolonia-api-key=YOUR-API-KEY"></script>
   </body>
 </html>
 ```
@@ -35,10 +35,33 @@ Or
 <html>
   <body>
     <div class="geolonia" data-key="YOUR-API-KEY" ...></div>
-    <script src="https://cdn.geolonia.com/v1/embed"></script>
+    <script src="https://cdn.geolonia.com/embed/v5/embed"></script>
   </body>
 </html>
 ```
+
+### Using with npm (for React, Next.js, Astro, Fresh, etc.)
+
+For modern web frameworks, use `@geolonia/embed/core` — a side-effect-free entry point designed for programmatic use.
+
+```shell
+npm install @geolonia/embed
+```
+
+```typescript
+import { GeoloniaMap, keyring } from "@geolonia/embed/core";
+
+keyring.apiKey = "YOUR-API-KEY";
+
+const map = new GeoloniaMap({
+  container: "#map",
+  style: "geolonia/gsi",
+  center: [139.7671, 35.6812],
+  zoom: 14,
+});
+```
+
+Unlike the default `@geolonia/embed` entry point, `/core` does **not** automatically scan the DOM or set `window.geolonia`. This makes it safe to use in SSR environments and avoids double-initialization issues in frameworks like React, Preact, and Vue.
 
 ### Using External Styles Without API Key
 
@@ -62,7 +85,7 @@ You can use external style.json URLs without a Geolonia API key. This is useful 
       data-zoom="14"
       data-style="https://tile.openstreetmap.jp/styles/osm-bright/style.json"
     ></div>
-    <script src="https://cdn.geolonia.com/v1/embed"></script>
+    <script src="https://cdn.geolonia.com/embed/v5/embed"></script>
   </body>
 </html>
 ```
