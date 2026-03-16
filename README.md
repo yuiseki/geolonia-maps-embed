@@ -40,6 +40,29 @@ Or
 </html>
 ```
 
+### Using with npm (for React, Next.js, Astro, Fresh, etc.)
+
+For modern web frameworks, use `@geolonia/embed/core` — a side-effect-free entry point designed for programmatic use.
+
+```
+npm install @geolonia/embed
+```
+
+```typescript
+import { GeoloniaMap, keyring } from "@geolonia/embed/core";
+
+keyring.apiKey = "YOUR-API-KEY";
+
+const map = new GeoloniaMap({
+  container: "#map",
+  style: "geolonia/gsi",
+  center: [139.7671, 35.6812],
+  zoom: 14,
+});
+```
+
+Unlike the default `@geolonia/embed` entry point, `/core` does **not** automatically scan the DOM or set `window.geolonia`. This makes it safe to use in SSR environments and avoids double-initialization issues in frameworks like React, Preact, and Vue.
+
 ### Using External Styles Without API Key
 
 You can use external style.json URLs without a Geolonia API key. This is useful when:
