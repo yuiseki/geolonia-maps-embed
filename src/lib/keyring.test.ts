@@ -110,4 +110,18 @@ describe('isGeoloniaStyleCheck', () => {
     expect(keyring.isGeoloniaStyleCheck('./my-style.json')).toBe(false);
     expect(keyring.isGeoloniaStyleCheck('/styles/custom.json')).toBe(false);
   });
+
+  it('should return true for relative paths to geolonia.com', () => {
+    // Simulate being on geolonia.com
+    const origHref = global.location?.href;
+    global.location = {
+      ...global.location,
+      href: 'https://cdn.geolonia.com/demo.html',
+    };
+    expect(keyring.isGeoloniaStyleCheck('./style.json')).toBe(true);
+    // Restore
+    if (origHref) {
+      global.location = { ...global.location, href: origHref };
+    }
+  });
 });
