@@ -3,13 +3,15 @@
  */
 
 import * as maplibregl from 'maplibre-gl';
-import GeoloniaMap from './lib/geolonia-map';
-import GeoloniaMarker from './lib/geolonia-marker';
-import { SimpleStyle } from './lib/simplestyle';
-import { VERSION as embedVersion } from './version';
+import {
+  GeoloniaMap,
+  GeoloniaMarker,
+  SimpleStyle,
+  coreVersion as embedVersion,
+} from '@geolonia/maps-core';
 import { registerPlugin, renderGeoloniaMap } from './lib/render';
 
-export type { GeoloniaMapOptions } from './lib/geolonia-map';
+export type { GeoloniaMapOptions } from '@geolonia/maps-core';
 
 export type Popup = maplibregl.Popup;
 

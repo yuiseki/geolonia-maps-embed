@@ -29,8 +29,8 @@ test.describe('1. 基本的な地図表示', () => {
     await page.goto(`${TEST_URL}/basic.html`);
     await waitForMapLoad(page);
     const center = await page.evaluate(() => {
-      const map = new window.geolonia.Map('map');
-      return map.getCenter();
+      const container = document.querySelector('#map') as any;
+      return container?.geoloniaMap?.getCenter();
     });
     // 日本のおおよその中心座標
     expect(center.lat).toBeCloseTo(0.0, 0);

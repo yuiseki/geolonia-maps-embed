@@ -1,31 +1,60 @@
-import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import '../style.css';
-import GeoloniaMap from './geolonia-map';
-import { checkPermission } from './util';
-import parseAtts from './parse-atts';
-import { keyring } from './keyring';
-import { Protocol } from 'pmtiles';
+import '@geolonia/maps-core/css';
+import { GeoloniaMap, keyring } from '@geolonia/maps-core';
+import parseAtts, { attsToOptions } from './parse-atts';
 
 const plugins = [];
 
 export const renderGeoloniaMap = () => {
-  const protocol = new Protocol();
-  maplibregl.addProtocol('pmtiles', protocol.tile);
+  // checkPermission inline (avoid importing deleted util.ts)
+  const checkPermission = (): boolean => {
+    if (window.self === window.parent) return true;
+    if (keyring.apiKey) return true;
+    try {
+      if (window.self.location.origin === window.top.location.origin) return true;
+    } catch {
+      return false;
+    }
+    // Whitelist: CodePen, JSFiddle, CodeSandbox
+    if (
+      (window.self.location.origin === 'https://cdpn.io' || window.self.location.origin === 'https://codepen.io') &&
+      window.document.referrer.indexOf('https://codepen.io') === 0
+    ) return true;
+    if (
+      window.self.location.origin === 'https://fiddle.jshell.net' &&
+      window.document.referrer.indexOf('https://jsfiddle.net') === 0
+    ) return true;
+    if (
+      window.self.location.origin.match(/csb\.app$/) &&
+      window.document.referrer.indexOf('https://codesandbox.io') === 0
+    ) return true;
+    return false;
+  };
 
   if (checkPermission()) {
     let isDOMContentLoaded = false;
     const alreadyRenderedMaps = [];
     const isRemoved = Symbol('map-is-removed');
 
-    keyring.parse();
-
     /**
-     *
      * @param {HTMLElement} target
      */
     const renderSingleMap = (target) => {
-      const map = new GeoloniaMap(target);
+      // Capture innerHTML for popup content before map clears it
+      const content = target.innerHTML.trim();
+      if (content) {
+        target.dataset.popupContent = content;
+      }
+
+      const atts = parseAtts(target);
+
+      // Warn if API key is missing for Geolonia styles
+      if (keyring.isGeoloniaStyle && !keyring.apiKey) {
+        console.error('[Geolonia] Missing API key.'); // eslint-disable-line
+      }
+
+      const options = attsToOptions(target, atts);
+      const map = new GeoloniaMap(options);
 
       // detect if the map removed manually
       map.on('remove', () => {
@@ -45,7 +74,6 @@ export const renderGeoloniaMap = () => {
       observer.observe(target.parentNode, { childList: true });
 
       // plugin
-      const atts = parseAtts(target);
       if (isDOMContentLoaded && !map[isRemoved]) {
         plugins.forEach((plugin) => plugin(map, target, atts));
       } else {
@@ -85,11 +113,6 @@ export const renderGeoloniaMap = () => {
     const lazyContainers = document.querySelectorAll(
       '.geolonia:not([data-lazy-loading="off"])',
     );
-
-    // This is required for correct initialization! Don't delete!
-    if (keyring.isGeoloniaStyle && !keyring.apiKey) {
-      console.error('[Geolonia] Missing API key.'); // eslint-disable-line
-    }
 
     // render Map immediately
     for (let i = 0; i < containers.length; i++) {

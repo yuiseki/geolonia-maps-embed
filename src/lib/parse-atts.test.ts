@@ -1,13 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import parseAtts from './parse-atts';
+import assert from 'assert';
 import { JSDOM } from 'jsdom';
-import { keyring } from './keyring';
+import { keyring } from '@geolonia/maps-core';
 
 describe('tests for parse Attributes', () => {
   const prevWindow = global.window;
 
   beforeEach(() => {
-    process.env.MAP_PLATFORM_STAGE = 'v1';
     global.window = {
       // @ts-ignore forcefully assigning values to readonly properties
       navigator: { languages: ['ja'] },
@@ -16,50 +15,60 @@ describe('tests for parse Attributes', () => {
     keyring.reset();
   });
 
-  it('should parse attribute', () => {
+  it('should parse attribute from container with data-key', () => {
     const { document: mocDocument } = new JSDOM(`<html><body>
-          <script type="text/javascript" src="https://cdn.geolonia.com/v1/embed?geolonia-api-key=YOUR-API-KEY"></script>
+          <div id="map" class="geolonia" data-key="YOUR-API-KEY"></div>
           </body></html>`).window;
 
-    const atts = parseAtts(mocDocument);
-    expect(atts).toEqual({
-      lat: 0,
-      lng: 0,
-      zoom: 0,
-      bearing: 0,
-      pitch: 0,
-      hash: 'off',
-      marker: 'on',
-      markerColor: '#E4402F',
-      openPopup: 'off',
-      customMarker: '',
-      customMarkerOffset: '0, 0',
-      gestureHandling: 'on',
-      navigationControl: 'on',
-      geolocateControl: 'off',
-      fullscreenControl: 'off',
-      scaleControl: 'off',
-      geoloniaControl: 'on',
-      geojson: '',
-      simpleVector: '',
-      cluster: 'on',
-      clusterColor: '#ff0000',
-      style: 'geolonia/basic-v2',
-      lang: 'ja',
-      plugin: 'off',
-      key: 'YOUR-API-KEY',
-      apiUrl: 'https://api.geolonia.com/v1',
-      stage: 'v1',
-      loader: 'on',
-      minZoom: '',
-      maxZoom: 20,
-      '3d': '',
-    });
+    const container = mocDocument.querySelector('#map') as HTMLElement;
+    const atts = parseAtts(container);
+    assert.deepStrictEqual(atts.key, 'YOUR-API-KEY');
+    assert.deepStrictEqual(atts.style, 'geolonia/basic-v2');
+    assert.deepStrictEqual(atts.lang, 'ja');
+    assert.deepStrictEqual(atts.marker, 'on');
+    assert.deepStrictEqual(atts.zoom, 0);
+    assert.deepStrictEqual(atts.lat, 0);
+    assert.deepStrictEqual(atts.lng, 0);
+    assert.deepStrictEqual(keyring.apiKey, 'YOUR-API-KEY');
+  });
+
+  it('should parse container with data-* attributes', () => {
+    const { document: mocDocument } = new JSDOM(`<html><body>
+          <div id="map" class="geolonia"
+            data-lat="35.68"
+            data-lng="139.77"
+            data-zoom="14"
+            data-style="geolonia/gsi"
+            data-marker="off"
+          ></div>
+          </body></html>`).window;
+
+    const container = mocDocument.querySelector('#map') as HTMLElement;
+    const atts = parseAtts(container);
+    assert.deepStrictEqual(atts.lat, '35.68');
+    assert.deepStrictEqual(atts.lng, '139.77');
+    assert.deepStrictEqual(atts.zoom, '14');
+    assert.deepStrictEqual(atts.style, 'geolonia/gsi');
+    assert.deepStrictEqual(atts.marker, 'off');
+  });
+
+  it('should have default values for empty container', () => {
+    const { document: mocDocument } = new JSDOM(`<html><body>
+          <div id="map" class="geolonia"></div>
+          </body></html>`).window;
+
+    const container = mocDocument.querySelector('#map') as HTMLElement;
+    const atts = parseAtts(container);
+    assert.deepStrictEqual(atts.lat, 0);
+    assert.deepStrictEqual(atts.lng, 0);
+    assert.deepStrictEqual(atts.zoom, 0);
+    assert.deepStrictEqual(atts.marker, 'on');
+    assert.deepStrictEqual(atts.loader, 'on');
+    assert.deepStrictEqual(atts.gestureHandling, 'on');
   });
 
   afterEach(() => {
     global.window = prevWindow;
     keyring.reset();
-    delete process.env.MAP_PLATFORM_STAGE;
   });
 });
