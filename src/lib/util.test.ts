@@ -1,4 +1,5 @@
-import assert from 'assert';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+
 import { JSDOM } from 'jsdom';
 import {
   getContainer,
@@ -17,7 +18,7 @@ import {
 
 const base = 'https://base.example.com/parent/';
 
-before(() => {
+beforeAll(() => {
   global.location = {
     ...global.location,
     href: base,
@@ -26,58 +27,52 @@ before(() => {
 
 describe('Tests for util.js', () => {
   it('URL should be detected', () => {
-    assert.deepEqual(true, !!isURL('http://example.com'));
+    expect(true).toEqual(!!isURL('http://example.com'));
   });
 
   it('URL with SSL should be detected', () => {
-    assert.deepEqual(true, !!isURL('https://example.com'));
+    expect(true).toEqual(!!isURL('https://example.com'));
   });
 
   it('Path should be detected', () => {
-    assert.deepEqual(
-      'https://base.example.com/parent/example-path',
-      isURL('./example-path'),
+    expect('https://base.example.com/parent/example-path').toEqual(isURL('./example-path'),
     );
   });
 
   it('Parent path should be detected', () => {
-    assert.deepEqual(
-      'https://base.example.com/example-path',
-      isURL('../example-path'),
+    expect('https://base.example.com/example-path').toEqual(isURL('../example-path'),
     );
   });
 
   it('Absolute path should be detected', () => {
-    assert.deepEqual(
-      'https://base.example.com/example-path',
-      isURL('/example-path'),
+    expect('https://base.example.com/example-path').toEqual(isURL('/example-path'),
     );
   });
 
   it('Name should not be detected', () => {
-    assert.deepEqual(false, isURL('example.com/hello'));
+    expect(false).toEqual(isURL('example.com/hello'));
   });
 
   describe('isGeoloniaTilesHost', () => {
     it('detects primary tileserver hostname', () => {
       const url =
         'https://tileserver.geolonia.com/v3/tiles.json?key=YOUR-API-KEY';
-      assert.strictEqual(isGeoloniaTilesHost(url), true);
+      expect(isGeoloniaTilesHost(url)).toBe(true);
     });
 
     it('detects tiles.geolonia.com subdomains', () => {
       const url = new URL('https://osm.v2.tiles.geolonia.com/tiles.json');
-      assert.strictEqual(isGeoloniaTilesHost(url), true);
+      expect(isGeoloniaTilesHost(url)).toBe(true);
     });
 
     it('detects tiles.geolonia.com subdomains', () => {
       const url = new URL('https://osm.v3.tiles.geolonia.com/tiles.json');
-      assert.strictEqual(isGeoloniaTilesHost(url), true);
+      expect(isGeoloniaTilesHost(url)).toBe(true);
     });
 
     it('returns false for other hosts or invalid urls', () => {
-      assert.strictEqual(isGeoloniaTilesHost('https://example.com/tiles'), false);
-      assert.strictEqual(isGeoloniaTilesHost('not-a-url'), false);
+      expect(isGeoloniaTilesHost('https://example.com/tiles')).toBe(false);
+      expect(isGeoloniaTilesHost('not-a-url')).toBe(false);
     });
   });
 
@@ -86,12 +81,10 @@ describe('Tests for util.js', () => {
       <div class="test-class"></div>
     </body></html>`).window;
 
-    assert.deepEqual(
-      true,
-      isDomElement(mocDocument.querySelector('.test-class')),
+    expect(true).toEqual(isDomElement(mocDocument.querySelector('.test-class')),
     );
-    assert.deepEqual(false, isDomElement('hello world'));
-    assert.deepEqual(false, isDomElement({ hello: 'world' }));
+    expect(false).toEqual(isDomElement('hello world'));
+    expect(false).toEqual(isDomElement({ hello: 'world' }));
   });
 
   it('should be able to get dom', () => {
@@ -104,23 +97,23 @@ describe('Tests for util.js', () => {
     global.document = dom.window.document;
 
     const el = document.querySelector('#test-element') as HTMLElement;
-    assert.deepEqual(el, getContainer(el));
+    expect(el).toEqual(getContainer(el));
     const params = { container: el };
-    assert.deepEqual(el, getContainer(params));
+    expect(el).toEqual(getContainer(params));
 
     // specify as a selector
-    assert.deepEqual(el, getContainer('#test-element'));
-    assert.deepEqual(el, getContainer({ container: '#test-element' }));
+    expect(el).toEqual(getContainer('#test-element'));
+    expect(el).toEqual(getContainer({ container: '#test-element' }));
 
     // specify as an id attribute value
-    assert.deepEqual(el, getContainer('test-element'));
-    assert.deepEqual(el, getContainer({ container: 'test-element' }));
+    expect(el).toEqual(getContainer('test-element'));
+    expect(el).toEqual(getContainer({ container: 'test-element' }));
 
     // negative cases
-    assert.deepEqual(false, getContainer('#fail-element'));
-    assert.deepEqual(false, getContainer({ container: '#fail-element' }));
-    assert.deepEqual(false, getContainer('fail-element'));
-    assert.deepEqual(false, getContainer({ container: 'fail-element' }));
+    expect(false).toEqual(getContainer('#fail-element'));
+    expect(false).toEqual(getContainer({ container: '#fail-element' }));
+    expect(false).toEqual(getContainer('fail-element'));
+    expect(false).toEqual(getContainer({ container: 'fail-element' }));
   });
 
   it('should merge legacy options into options as expected.', () => {
@@ -136,14 +129,14 @@ describe('Tests for util.js', () => {
       document.getElementById('test-element'),
       { color: '#FF1122' },
     );
-    assert.deepEqual(document.getElementById('test-element'), options1.element);
-    assert.deepEqual(options1.color, '#FF1122');
+    expect(document.getElementById('test-element')).toEqual(options1.element);
+    expect(options1.color).toEqual('#FF1122');
 
     const options2 = handleMarkerOptions(false, { color: '#FF1122' });
-    assert.deepEqual(options2.color, '#FF1122');
+    expect(options2.color).toEqual('#FF1122');
 
     const options3 = handleMarkerOptions({ scale: 2 }, { color: '#FF1122' });
-    assert.deepEqual(options3.scale, 2);
+    expect(options3.scale).toEqual(2);
   });
 
   describe('language detection', () => {
@@ -155,7 +148,7 @@ describe('Tests for util.js', () => {
           languages: ['ja', 'en', 'en-US', 'ar'],
         },
       };
-      assert.equal(getLang(), 'ja');
+      expect(getLang()).toEqual('ja');
     });
 
     it('should work with iOS safari', () => {
@@ -166,7 +159,7 @@ describe('Tests for util.js', () => {
           languages: ['ja-JP'],
         },
       };
-      assert.equal(getLang(), 'ja');
+      expect(getLang()).toEqual('ja');
     });
   });
 
@@ -178,58 +171,40 @@ describe('Tests for util.js', () => {
     };
 
     // 従来モード: 論理名（API キー必須）
-    assert.deepEqual(
-      'https://cdn.geolonia.com/style/hello/world/en.json',
-      getStyle('hello/world', atts),
+    expect('https://cdn.geolonia.com/style/hello/world/en.json').toEqual(getStyle('hello/world', atts),
     );
 
     // URL モード: https://（外部 URL、API キー不要）
-    assert.deepEqual(
-      'https://example.com/style.json',
-      getStyle('https://example.com/style.json', atts),
+    expect('https://example.com/style.json').toEqual(getStyle('https://example.com/style.json', atts),
     );
 
     // URL モード: 相対パス ./（外部 URL、API キー不要）
-    assert.deepEqual(
-      'https://base.example.com/parent/style.json',
-      getStyle('./style.json', atts),
+    expect('https://base.example.com/parent/style.json').toEqual(getStyle('./style.json', atts),
     );
 
     // URL モード: 絶対パス /（外部 URL、API キー不要）
-    assert.deepEqual(
-      'https://base.example.com/style.json',
-      getStyle('/style.json', atts),
+    expect('https://base.example.com/style.json').toEqual(getStyle('/style.json', atts),
     );
 
     // URL モード: .json で終わる（外部 URL として解決）
-    assert.deepEqual(
-      'https://base.example.com/parent/custom.json',
-      getStyle('custom.json', atts),
+    expect('https://base.example.com/parent/custom.json').toEqual(getStyle('custom.json', atts),
     );
 
     // デフォルト: 空文字列（API キー必須）
-    assert.deepEqual(
-      'https://cdn.geolonia.com/style/geolonia/basic-v2/en.json',
-      getStyle('', atts),
+    expect('https://cdn.geolonia.com/style/geolonia/basic-v2/en.json').toEqual(getStyle('', atts),
     );
 
     // デフォルト: null/undefined（API キー必須）
-    assert.deepEqual(
-      'https://cdn.geolonia.com/style/geolonia/basic-v2/en.json',
-      getStyle(null, atts),
+    expect('https://cdn.geolonia.com/style/geolonia/basic-v2/en.json').toEqual(getStyle(null, atts),
     );
 
     // 日本語環境でのデフォルト
     const attsJa = { ...atts, lang: 'ja' };
-    assert.deepEqual(
-      'https://cdn.geolonia.com/style/geolonia/basic-v2/ja.json',
-      getStyle('', attsJa),
+    expect('https://cdn.geolonia.com/style/geolonia/basic-v2/ja.json').toEqual(getStyle('', attsJa),
     );
 
     // 日本語環境での論理名
-    assert.deepEqual(
-      'https://cdn.geolonia.com/style/geolonia/basic/ja.json',
-      getStyle('geolonia/basic', attsJa),
+    expect('https://cdn.geolonia.com/style/geolonia/basic/ja.json').toEqual(getStyle('geolonia/basic', attsJa),
     );
   });
 
@@ -241,93 +216,88 @@ describe('Tests for util.js', () => {
     };
 
     // 論理名: API キー無しでエラー
-    assert.throws(
+    expect(
       () => getStyle('geolonia/basic', attsNoKey),
-      /API key is required/,
-    );
+    ).toThrow(/API key is required/);
 
     // デフォルト: API キー無しでエラー
-    assert.throws(
+    expect(
       () => getStyle('', attsNoKey),
-      /API key is required/,
-    );
+    ).toThrow(/API key is required/);
 
     // Geolonia CDN の URL: API キー無しでエラー
-    assert.throws(
+    expect(
       () => getStyle('https://cdn.geolonia.com/style/geolonia/basic/en.json', attsNoKey),
-      /API key is required/,
-    );
+    ).toThrow(/API key is required/);
 
     // 外部 URL: API キー無しでも OK
-    assert.doesNotThrow(() => {
+    expect(() => {
       getStyle('https://tile.openstreetmap.jp/styles/osm-bright/style.json', attsNoKey);
-    });
+    }).not.toThrow();
 
-    assert.doesNotThrow(() => {
+    expect(() => {
       getStyle('./my-style.json', attsNoKey);
-    });
+    }).not.toThrow();
   });
 
   it('should handle maplibregl options `minZoom` and `maxZoom` well', () => {
     {
       const atts = { minZoom: '', maxZoom: '10' };
       const options = getOptions({}, {}, atts);
-      assert.deepEqual('undefined', typeof options.minZoom);
-      assert.deepEqual(10, options.maxZoom);
+      expect('undefined').toEqual(typeof options.minZoom);
+      expect(10).toEqual(options.maxZoom);
     }
 
     {
       const atts = { minZoom: '0', maxZoom: '' };
       const options = getOptions({}, {}, atts);
-      assert.deepEqual(0, options.minZoom);
-      assert.deepEqual('undefined', typeof options.maxZoom);
+      expect(0).toEqual(options.minZoom);
+      expect('undefined').toEqual(typeof options.maxZoom);
     }
 
     {
       const atts = { minZoom: '0', maxZoom: '' };
       const params = { minZoom: 7 };
       const options = getOptions({}, params, atts);
-      assert.deepEqual(7, options.minZoom);
-      assert.deepEqual('undefined', typeof options.maxZoom);
+      expect(7).toEqual(options.minZoom);
+      expect('undefined').toEqual(typeof options.maxZoom);
     }
   });
 
   it('should handle control position options.', () => {
     const att = 'top-left';
     const { enabled, position } = parseControlOption(att);
-    assert.strictEqual(true, enabled);
-    assert.strictEqual('top-left', position);
+    expect(true).toBe(enabled);
+    expect('top-left').toBe(position);
   });
 
   it('should handle control position on.', () => {
     const att = 'on';
     const { enabled, position } = parseControlOption(att);
-    assert.strictEqual(true, enabled);
-    assert.strictEqual(void 0, position);
+    expect(true).toBe(enabled);
+    expect(void 0).toBe(position);
   });
 
   it('should handle control position off.', () => {
     const att = 'off';
     const { enabled, position } = parseControlOption(att);
-    assert.strictEqual(false, enabled);
-    assert.strictEqual(void 0, position);
+    expect(false).toBe(enabled);
+    expect(void 0).toBe(position);
   });
 
   it('should parse simple vector value with http.', () => {
     const attributeValue = 'https://example.com/path/to/tile.json';
-    assert.strictEqual(attributeValue, parseSimpleVector(attributeValue));
+    expect(attributeValue).toBe(parseSimpleVector(attributeValue));
   });
 
   it('should parse simple vector value with geolonia schema.', () => {
     const attributeValue = 'geolonia://tiles/username/ct_123';
-    assert.strictEqual(attributeValue, parseSimpleVector(attributeValue));
+    expect(attributeValue).toBe(parseSimpleVector(attributeValue));
   });
 
   it('should parse simple vector value with custom tile ID', () => {
     const attributeValue = 'ct_123';
-    assert.strictEqual(
-      'geolonia://tiles/custom/ct_123',
-      parseSimpleVector(attributeValue),
+    expect('geolonia://tiles/custom/ct_123').toBe(parseSimpleVector(attributeValue),
     );
   });
 
@@ -335,9 +305,7 @@ describe('Tests for util.js', () => {
     it('should sanitize description', async () => {
       const description =
         '<script>alert("hello");</script>ここが集合場所です。13時までに集合してください。';
-      assert.strictEqual(
-        'ここが集合場所です。13時までに集合してください。',
-        await sanitizeDescription(description),
+      expect('ここが集合場所です。13時までに集合してください。').toBe(await sanitizeDescription(description),
       );
     });
 
@@ -345,18 +313,14 @@ describe('Tests for util.js', () => {
       // Ref. https://www.npmjs.com/package/sanitize-html
       const description =
         '<img decoding="auto" src="hibiya-park.jpeg" /><br />ここが集合場所です。13時までに集合してください。';
-      assert.strictEqual(
-        '<img src="hibiya-park.jpeg" /><br />ここが集合場所です。13時までに集合してください。',
-        await sanitizeDescription(description),
+      expect('<img src="hibiya-park.jpeg" /><br />ここが集合場所です。13時までに集合してください。').toBe(await sanitizeDescription(description),
       );
     });
 
     it('should not sanitize "class" attribute', async () => {
       const description =
         '<span class="red">ここが集合場所です。13時までに集合してください。</span>';
-      assert.strictEqual(
-        '<span class="red">ここが集合場所です。13時までに集合してください。</span>',
-        await sanitizeDescription(description),
+      expect('<span class="red">ここが集合場所です。13時までに集合してください。</span>').toBe(await sanitizeDescription(description),
       );
     });
   });
@@ -373,9 +337,9 @@ describe('loadImageCompatibility', () => {
     const promise = Promise.resolve(mockResponse);
 
     loadImageCompatibility(promise, (error, data, expiry) => {
-      assert.equal(error, null);
-      assert.deepEqual(data, mockResponse.data);
-      assert.deepEqual(expiry, {
+      expect(error).toEqual(null);
+      expect(data).toEqual(mockResponse.data);
+      expect(expiry).toEqual({
         cacheControl: mockResponse.cacheControl,
         expires: mockResponse.expires,
       });
@@ -389,9 +353,9 @@ describe('loadImageCompatibility', () => {
     const promise = Promise.reject(mockError);
 
     loadImageCompatibility(promise, (error, data, expiry) => {
-      assert.deepEqual(error, mockError);
-      assert.strictEqual(data, undefined);
-      assert.strictEqual(expiry, undefined);
+      expect(error).toEqual(mockError);
+      expect(data).toBe(undefined);
+      expect(expiry).toBe(undefined);
       done();
     });
   });

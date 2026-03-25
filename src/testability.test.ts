@@ -1,5 +1,6 @@
+import { describe, it, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
-import assert from 'assert';
+
 import maplibregl from 'maplibre-gl';
 
 /**
@@ -31,16 +32,15 @@ describe('maplibre-gl jsdom limitation', () => {
     } catch (err) {
       errorCaught = err;
     }
-    assert(errorCaught instanceof Error);
+    expect(errorCaught).toBeInstanceOf(Error);
     // 期待される理由: WebGLが利用できない旨のエラーメッセージ
-    assert(
+    expect(
       /webgl|WebGL|context|device/i.test(errorCaught.message),
-      `Error message should mention WebGL or context, but got: ${errorCaught.message}`,
-    );
+    ).toBe(true);
   });
 
   it('【NOTE】描画テストが必要な場合はE2E（ブラウザ実行）で行うこと', () => {
     // このテストは常に成功。ドキュメント用途。
-    assert.strictEqual(true, true);
+    expect(true).toBe(true);
   });
 });
