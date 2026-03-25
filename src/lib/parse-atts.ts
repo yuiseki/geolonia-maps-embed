@@ -1,7 +1,6 @@
 'use strict';
 
-import { keyring, getLang } from '@geolonia/maps-core';
-import type { GeoloniaMapOptions } from '@geolonia/maps-core';
+import { keyring, getLang, type GeoloniaMapOptions } from '@geolonia/maps-core';
 import type { EmbedAttributes } from '../types';
 
 type ParseAttsParams = {
