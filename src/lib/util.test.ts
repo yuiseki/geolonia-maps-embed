@@ -327,8 +327,7 @@ describe('Tests for util.js', () => {
 });
 
 describe('loadImageCompatibility', () => {
-  it('should call the callback with response data when the promise resolves', (done) => {
-    // モックされた成功した promise
+  it('should call the callback with response data when the promise resolves', async () => {
     const mockResponse = {
       data: new Image(),
       cacheControl: 'public, max-age=3600',
@@ -336,27 +335,30 @@ describe('loadImageCompatibility', () => {
     };
     const promise = Promise.resolve(mockResponse);
 
-    loadImageCompatibility(promise, (error, data, expiry) => {
-      expect(error).toEqual(null);
-      expect(data).toEqual(mockResponse.data);
-      expect(expiry).toEqual({
-        cacheControl: mockResponse.cacheControl,
-        expires: mockResponse.expires,
+    await new Promise<void>((resolve) => {
+      loadImageCompatibility(promise, (error, data, expiry) => {
+        expect(error).toEqual(null);
+        expect(data).toEqual(mockResponse.data);
+        expect(expiry).toEqual({
+          cacheControl: mockResponse.cacheControl,
+          expires: mockResponse.expires,
+        });
+        resolve();
       });
-      done();
     });
   });
 
-  it('should call the callback with error when the promise rejects', (done) => {
-    // モックされた失敗した promise
+  it('should call the callback with error when the promise rejects', async () => {
     const mockError = new Error('Failed to load image');
     const promise = Promise.reject(mockError);
 
-    loadImageCompatibility(promise, (error, data, expiry) => {
-      expect(error).toEqual(mockError);
-      expect(data).toBe(undefined);
-      expect(expiry).toBe(undefined);
-      done();
+    await new Promise<void>((resolve) => {
+      loadImageCompatibility(promise, (error, data, expiry) => {
+        expect(error).toEqual(mockError);
+        expect(data).toBe(undefined);
+        expect(expiry).toBe(undefined);
+        resolve();
+      });
     });
   });
 });
