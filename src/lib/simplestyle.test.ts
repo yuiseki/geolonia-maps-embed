@@ -1,8 +1,11 @@
 /* eslint-disable no-loss-of-precision */
 'use strict';
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { random } from './util';
+
+const originalRequestAnimationFrame = window.requestAnimationFrame;
+const originalCreateObjectURL = window.URL.createObjectURL;
 
 beforeAll(() => {
   window.URL.createObjectURL ||= (_: Blob | MediaSource) => 'dummy';
@@ -11,6 +14,32 @@ beforeAll(() => {
     return random(999999);
   };
 });
+
+afterAll(() => {
+  window.requestAnimationFrame = originalRequestAnimationFrame;
+  if (originalCreateObjectURL) {
+    window.URL.createObjectURL = originalCreateObjectURL;
+  }
+});
+
+const sampleRemoteGeoJSON = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [139.6870422363281, 35.73425097869431],
+          [139.76943969726562, 35.73425097869431],
+          [139.73922729492188, 35.66399091134812],
+          [139.70352172851562, 35.698571062054015],
+        ],
+      },
+    },
+  ],
+};
 
 class Map {
   public bounds = false;
@@ -158,11 +187,16 @@ describe('Tests for simpleStyle()', () => {
 
   it('should load GeoJSON from url', async () => {
     const { SimpleStyle } = await import('./simplestyle');
+    const fetchSpy = vi.spyOn(window, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(sampleRemoteGeoJSON), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
 
     const map = new Map();
-    const geojson =
-      'https://gist.githubusercontent.com/miya0001/56c3dc174f5cdf1d9565cbca0fbd3c48/raw/c13330036d28ef547a8a87cb6df3fa12de19ddb6/test.geojson';
-    const ss = new SimpleStyle(geojson);
+    const geojsonUrl = 'https://example.com/test.geojson';
+    const ss = new SimpleStyle(geojsonUrl);
     ss.addTo(map).fitBounds();
 
     await ss._loadingPromise;
@@ -182,14 +216,19 @@ describe('Tests for simpleStyle()', () => {
     expect(coordinates).toEqual(expectCoordinates);
     expect(type).toEqual('LineString');
     expect(map.bounds).toEqual(true);
+
+    fetchSpy.mockRestore();
   });
 
   it('should load empty GeoJSON when failed to fetch GeoJSON', async () => {
     const { SimpleStyle } = await import('./simplestyle');
+    const fetchSpy = vi.spyOn(window, 'fetch').mockResolvedValue(
+      new Response('Not Found', { status: 404 }),
+    );
 
     const map = new Map();
-    const geojson = 'https://example.com/404.geojson';
-    const ss = new SimpleStyle(geojson);
+    const geojsonUrl = 'https://example.com/404.geojson';
+    const ss = new SimpleStyle(geojsonUrl);
     ss.addTo(map).fitBounds();
 
     await ss._loadingPromise;
@@ -199,10 +238,18 @@ describe('Tests for simpleStyle()', () => {
     );
     expect(map.layers.length).toEqual(8);
     expect(map.bounds).toEqual(false);
+
+    fetchSpy.mockRestore();
   });
 
   it('should update GeoJSON from url', async () => {
     const { SimpleStyle } = await import('./simplestyle');
+    const fetchSpy = vi.spyOn(window, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(sampleRemoteGeoJSON), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
 
     const map = new Map();
     const empty = {
@@ -215,10 +262,9 @@ describe('Tests for simpleStyle()', () => {
 
     await ss._loadingPromise;
 
-    const geojson =
-      'https://gist.githubusercontent.com/miya0001/56c3dc174f5cdf1d9565cbca0fbd3c48/raw/c13330036d28ef547a8a87cb6df3fa12de19ddb6/test.geojson';
+    const geojsonUrl = 'https://example.com/test.geojson';
 
-    ss.updateData(geojson);
+    ss.updateData(geojsonUrl);
 
     await ss._loadingPromise;
 
@@ -237,5 +283,7 @@ describe('Tests for simpleStyle()', () => {
     expect(coordinates).toEqual(expectCoordinates);
     expect(type).toEqual('LineString');
     expect(map.bounds).toEqual(true);
+
+    fetchSpy.mockRestore();
   });
 });
