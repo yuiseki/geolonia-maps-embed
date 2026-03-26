@@ -1,5 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import parseAtts from './parse-atts';
-import assert from 'assert';
 import { JSDOM } from 'jsdom';
 import { keyring } from './keyring';
 
@@ -22,7 +22,7 @@ describe('tests for parse Attributes', () => {
           </body></html>`).window;
 
     const atts = parseAtts(mocDocument);
-    assert.deepStrictEqual(atts, {
+    expect(atts).toEqual({
       lat: 0,
       lng: 0,
       zoom: 0,

@@ -1,5 +1,6 @@
+import { describe, it, expect, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import assert from 'assert';
+
 import maplibregl from 'maplibre-gl';
 
 /**
@@ -10,11 +11,14 @@ import maplibregl from 'maplibre-gl';
 
 describe('maplibre-gl jsdom limitation', () => {
   it('jsdom上ではMaplibre Mapインスタンス生成時にエラー（WebGL未対応のため）', () => {
+    // jsdom の "Not implemented" メッセージを抑制
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     const dom = new JSDOM(
       '<!DOCTYPE html><html><body><div id="map"></div></body></html>',
       {
         url: 'http://localhost',
-        pretendToBeVisual: true, // jsdomを視覚的な環境として
+        pretendToBeVisual: true,
       },
     );
     // @ts-ignore
@@ -31,16 +35,15 @@ describe('maplibre-gl jsdom limitation', () => {
     } catch (err) {
       errorCaught = err;
     }
-    assert(errorCaught instanceof Error);
-    // 期待される理由: WebGLが利用できない旨のエラーメッセージ
-    assert(
-      /webgl|WebGL|context|device/i.test(errorCaught.message),
-      `Error message should mention WebGL or context, but got: ${errorCaught.message}`,
-    );
+    expect(errorCaught).toBeInstanceOf(Error);
+    expect(
+      /webgl|WebGL|context|device|Not implemented/i.test(errorCaught.message),
+    ).toBe(true);
+
+    consoleSpy.mockRestore();
   });
 
   it('【NOTE】描画テストが必要な場合はE2E（ブラウザ実行）で行うこと', () => {
-    // このテストは常に成功。ドキュメント用途。
-    assert.strictEqual(true, true);
+    expect(true).toBe(true);
   });
 });
