@@ -106,7 +106,7 @@ export function attsToOptions(container: HTMLElement, atts: EmbedAttributes): Ge
     pitch: parseFloat(String(atts.pitch)),
     hash: atts.hash === 'on',
     minZoom: atts.minZoom !== '' ? Number(atts.minZoom) : undefined,
-    maxZoom: Number(atts.maxZoom) || 20,
+    maxZoom: atts.maxZoom !== '' && !Number.isNaN(Number(atts.maxZoom)) ? Number(atts.maxZoom) : 20,
     marker: toBool(atts.marker, true),
     markerColor: String(atts.markerColor),
     openPopup: toBool(atts.openPopup, false),

@@ -15,8 +15,8 @@ export {
   getStyle,
   getLang,
   isGeoloniaTilesHost,
-  coreVersion as embedVersion,
 } from '@geolonia/maps-core';
+export { VERSION as embedVersion } from './version';
 
 export type {
   GeoloniaMapOptions,

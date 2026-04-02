@@ -7,8 +7,8 @@ import {
   GeoloniaMap,
   GeoloniaMarker,
   SimpleStyle,
-  coreVersion as embedVersion,
 } from '@geolonia/maps-core';
+import { VERSION as embedVersion } from './version';
 import { registerPlugin, renderGeoloniaMap } from './lib/render';
 
 export type { GeoloniaMapOptions } from '@geolonia/maps-core';
