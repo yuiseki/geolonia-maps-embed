@@ -2,8 +2,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '@geolonia/maps-core/css';
 import { GeoloniaMap, keyring } from '@geolonia/maps-core';
 import parseAtts, { attsToOptions } from './parse-atts';
-
-const plugins = [];
+import { plugins } from './plugin';
 
 /**
  * Parse API key and stage from the embed script tag URL.
@@ -165,9 +164,4 @@ export const renderGeoloniaMap = () => {
   }
 };
 
-export const registerPlugin = (
-  plugin: (map: GeoloniaMap, target: HTMLElement, atts) => void,
-): void => {
-  plugins.push(plugin);
-  return void 0;
-};
+export { registerPlugin } from './plugin';
