@@ -42,7 +42,7 @@ export const renderGeoloniaMap = () => {
     try {
       if (window.self.location.origin === window.top.location.origin) return true;
     } catch {
-      return false;
+      // cross-origin — fall through to whitelist checks
     }
     // Whitelist: CodePen, JSFiddle, CodeSandbox
     if (
