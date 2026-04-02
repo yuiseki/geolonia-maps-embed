@@ -5,7 +5,36 @@ import parseAtts, { attsToOptions } from './parse-atts';
 
 const plugins = [];
 
+/**
+ * Parse API key and stage from the embed script tag URL.
+ * e.g. <script src="https://cdn.geolonia.com/v1/embed?geolonia-api-key=YOUR-API-KEY"></script>
+ */
+const parseScriptTag = () => {
+  const scripts: HTMLScriptElement[] | HTMLCollectionOf<HTMLScriptElement> =
+    document.currentScript
+      ? [document.currentScript as HTMLScriptElement]
+      : document.getElementsByTagName('script');
+
+  for (const script of scripts) {
+    if (!script.src) continue;
+    try {
+      const url = new URL(script.src, location.href);
+      const apiKey = url.searchParams.get('geolonia-api-key');
+      if (apiKey) {
+        keyring.setApiKey(apiKey);
+        keyring.setStage(process.env.MAP_PLATFORM_STAGE || 'dev');
+        break;
+      }
+    } catch {
+      // ignore invalid URLs
+    }
+  }
+};
+
 export const renderGeoloniaMap = () => {
+  // Extract API key from script tag URL (backward compatibility)
+  parseScriptTag();
+
   // checkPermission inline (avoid importing deleted util.ts)
   const checkPermission = (): boolean => {
     if (window.self === window.parent) return true;
