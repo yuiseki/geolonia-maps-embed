@@ -68,7 +68,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
-    "@geolonia/maps-core": "github:geolonia/maps-core#v0.1.0",
+    "@geolonia/maps-core": "^0.1.0",
     "@playwright/test": "^1.53.1",
     "maplibre-gl": "5.19.0"
   }
